@@ -25,7 +25,7 @@ export async function register(req, res, next) {
     return res
       .status(201)
       .json({
-        user: {id: newUser._id, name: newUser.name, email: newUser.email, role: newUser.role},
+        user: { _id: newUser._id, name: newUser.name, email: newUser.email, role: newUser.role },
       });
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -48,22 +48,24 @@ export async function register(req, res, next) {
  */
 export async function login(req, res, next) {
   try {
-      const {email, password} = req.body
-      let user = await User.findOne({email}).select('+password')
-      if(!user) return res.status(401).json({ error: { message: "Invalid credentials" } })
-      
-      const comparePassword = await bcrypt.compare(password, user.password)
+    const { email, password } = req.body
+    let user = await User.findOne({ email }).select('+password')
+    if (!user) return res.status(401)
+      .json({ error: { message: "Invalid credentials" } })
 
-      if(comparePassword == false) return res.status(401).json({ error: { message: "Invalid credentials" } })
+    const comparePassword = await bcrypt.compare(password, user.password)
 
-      const payload = { userId: user._id, email: user.email, role: user.role }
-      
-      user = user.toObject()
-      delete user.password 
-      
-      const token = signToken(payload)
-      return res.status(200).json({token, user})
-      
+    if (comparePassword == false) return res.status(401)
+      .json({ error: { message: "Invalid credentials" } })
+
+    const payload = { userId: user._id, email: user.email, role: user.role }
+
+    user = user.toObject()
+    delete user.password
+
+    const token = signToken(payload)
+    return res.status(200).json({ token, user })
+
 
   } catch (error) {
     next(error);
@@ -78,7 +80,7 @@ export async function login(req, res, next) {
  */
 export async function me(req, res, next) {
   try {
-      return res.status(200).json({user: req.user})
+    return res.status(200).json({ user: req.user })
   } catch (error) {
     next(error);
   }
