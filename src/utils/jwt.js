@@ -1,4 +1,6 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+const {JsonWebTokenError, TokenExpiredError} = jwt
+
 
 /**
  * TODO: Signs a JWT token with the given payload
@@ -28,7 +30,11 @@ import jwt from 'jsonwebtoken';
  * - Keep JWT_SECRET secure and never commit it to version control
  */
 export function signToken(payload) {
-  // Your code here
+  const signedToken = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || "24h",
+  });
+
+  return signedToken;
 }
 
 /**
@@ -66,5 +72,8 @@ export function signToken(payload) {
  * - Never skip verification for "performance" reasons
  */
 export function verifyToken(token) {
-  // Your code here
+  if(!token) throw new Error('Token is missing')
+  const secret = process.env.JWT_SECRET
+  const payload = jwt.verify(token, secret)
+  return payload
 }
